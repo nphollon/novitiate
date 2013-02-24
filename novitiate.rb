@@ -9,7 +9,7 @@ class Novitiate
     @wave_setting = :sine
     @gain = 1.0
     @waveform = SineWave.new(440)
-    @frequency_setting = 0.5
+    self.frequency_setting = 0.5
   end
 
   def wave_setting=(new_setting)
@@ -19,7 +19,17 @@ class Novitiate
       triangle: TriangleWave,
       square: SquareWave,
       sawtooth: SawtoothWave
-      }[new_setting].new(440)
+      }[new_setting].new( frequency )
+  end
+
+  def frequency_setting=(new_setting)
+    raise RangeError, "Frequency setting must be between 0 and 1." unless (0..1).include?(new_setting)
+    @frequency_setting = new_setting
+    @waveform.frequency = 2 * 10 ** (3*new_setting + 1)
+  end
+
+  def frequency
+    @waveform.frequency
   end
 
   def turn_on

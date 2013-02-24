@@ -39,6 +39,30 @@ describe "Novitiate" do
         @nov.waveform.class.should == Novitiate::SawtoothWave
       end
     end
+
+    describe "frequency settings" do
+      before do
+        @freq1 = @nov.frequency
+        @nov.frequency_setting = 0.6
+      end
+
+      its(:frequency) { should be > @freq1 }
+      its(:frequency) { should == @nov.waveform.frequency }
+
+      specify "logarithmically-scaled frequency" do
+        freq2 = @nov.frequency
+        @nov.frequency_setting = 0.7
+        (@nov.frequency / freq2).should be_within(1e-3).of(freq2 / @freq1)
+      end
+
+      it "can't have a frequency setting higher than 1" do
+        expect { @nov.frequency_setting = 1.001 }.to raise_error(RangeError)
+      end
+
+      it "can't have a frequency setting lower than 0" do
+        expect { @nov.frequency_setting = -0.001 }.to raise_error(RangeError)
+      end
+    end
   end
 
 end

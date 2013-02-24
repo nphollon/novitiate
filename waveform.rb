@@ -1,6 +1,6 @@
 module Waveform
 	class Waveform
-		attr_reader :frequency
+		attr_accessor :frequency
 
 		def initialize(frequency)
 			@frequency = frequency
