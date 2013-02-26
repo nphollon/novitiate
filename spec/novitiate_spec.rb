@@ -61,56 +61,30 @@ describe "Novitiate" do
       it "can't have a frequency setting lower than 0" do
         expect { @nov.frequency_setting = -0.001 }.to raise_error(RangeError)
       end
+
+      it "can turn frequency knob in units of octaves per second" do
+        freq2 = @nov.frequency
+        @nov.slew_frequency(1)
+        @nov.frequency.should be_within(1e-6).of(1.0162250658168974*freq2)
+      end
+
+      it "can set frequency directly" do
+        @nov.frequency = @freq1
+        @nov.frequency_setting.should == 0.5
+      end
     end
 
     describe "playing" do
-
-      describe "uint8 format" do
-        before do
-          @buffer = PortAudio::SampleBuffer.new(format: :uint8)
-        end
-
-        describe "filling buffer with waveform samples" do
-          specify "square wave" do
-            @nov.wave_setting = :square
-            @nov.fill_buffer(@buffer)
-            (0...@buffer.frames).each do |i|
-              [0, 255].include?(@buffer[i,0]).should be_true
-            end
-          end
-
-          specify "sawtooth wave" do
-            @nov.wave_setting = :sawtooth
-            @nov.fill_buffer(@buffer)
-            (@buffer[10,0] - @buffer[0,0]).should be > 0
-          end
-        end
-      end
-
-      describe "int8 format" do
-        before do
-          @buffer = PortAudio::SampleBuffer.new(format: :int8)
-        end
-
-        it "should give samples in the appropriate range" do
-          @nov.wave_setting = :square
-          @nov.fill_buffer(@buffer)
-          (0...@buffer.frames).each do |i|
-            [-128, 127].include?(@buffer[i,0]).should be_true
-          end
-        end
-      end
-
       describe "buffer continuity" do
-        it "should keeps track of where it left off when filling multiple buffers" do
-          buffer = PortAudio::SampleBuffer.new(format: :int16)
+        it "should keep track of where it left off when filling multiple buffers" do
           @nov.wave_setting = :sawtooth
-          @nov.fill_buffer(buffer)
-          sample1 = buffer[0,0]
-          @nov.fill_buffer(buffer)
-          buffer[0,0].should be > sample1
+          @nov.fill_buffer
+          sample1 = @nov.buffer[0,0]
+          @nov.fill_buffer
+          @nov.buffer[0,0].should be > sample1
         end
       end
     end
+
   end
 end
