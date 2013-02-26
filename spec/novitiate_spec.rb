@@ -14,7 +14,6 @@ describe "Novitiate" do
   subject { @nov }
 
   describe "oscillation" do
-    it { should be_silent }
     its (:wave_setting) { should == :sine }
     its (:frequency_setting) { should == 0.5 }
     its (:gain) { should == 1.0 }
@@ -63,6 +62,55 @@ describe "Novitiate" do
         expect { @nov.frequency_setting = -0.001 }.to raise_error(RangeError)
       end
     end
-  end
 
+    describe "playing" do
+
+      describe "uint8 format" do
+        before do
+          @buffer = PortAudio::SampleBuffer.new(format: :uint8)
+        end
+
+        describe "filling buffer with waveform samples" do
+          specify "square wave" do
+            @nov.wave_setting = :square
+            @nov.fill_buffer(@buffer)
+            (0...@buffer.frames).each do |i|
+              [0, 255].include?(@buffer[i,0]).should be_true
+            end
+          end
+
+          specify "sawtooth wave" do
+            @nov.wave_setting = :sawtooth
+            @nov.fill_buffer(@buffer)
+            (@buffer[10,0] - @buffer[0,0]).should be > 0
+          end
+        end
+      end
+
+      describe "int8 format" do
+        before do
+          @buffer = PortAudio::SampleBuffer.new(format: :int8)
+        end
+
+        it "should give samples in the appropriate range" do
+          @nov.wave_setting = :square
+          @nov.fill_buffer(@buffer)
+          (0...@buffer.frames).each do |i|
+            [-128, 127].include?(@buffer[i,0]).should be_true
+          end
+        end
+      end
+
+      describe "buffer continuity" do
+        it "should keeps track of where it left off when filling multiple buffers" do
+          buffer = PortAudio::SampleBuffer.new(format: :int16)
+          @nov.wave_setting = :sawtooth
+          @nov.fill_buffer(buffer)
+          sample1 = buffer[0,0]
+          @nov.fill_buffer(buffer)
+          buffer[0,0].should be > sample1
+        end
+      end
+    end
+  end
 end

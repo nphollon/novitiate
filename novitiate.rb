@@ -1,15 +1,49 @@
-require_relative './waveform'
+require 'waveform'
+require 'portaudio'
 
 class Novitiate
   include Waveform
 
-  attr_reader :wave_setting, :gain, :waveform, :frequency_setting
+  attr_reader :wave_setting, :gain, :waveform, :frequency_setting, :buffer
 
   def initialize
     @wave_setting = :sine
     @gain = 1.0
     @waveform = SineWave.new(440)
     self.frequency_setting = 0.5
+    @buffer = PortAudio::SampleBuffer.new
+  end
+
+  def turn_on
+    PortAudio.init
+    @stream = PortAudio.default_output_device.open_stream(format: :float32)
+    @buffer = PortAudio::SampleBuffer.new(format: :float32)
+  end
+
+  def turn_off
+    @buffer.dispose
+    @stream.close
+    PortAudio.terminate
+  end
+
+  def play
+    @stream.start
+    time = 0
+    phase = 0
+    step = 1.0/44100
+    loop do
+      yield time
+      @stream << @buffer.fill do
+        time += step
+        phase = (phase + self.frequency*step).modulo(1)
+        sample @waveform.eval(phase)
+      end
+    end
+    @stream.stop
+  end
+
+  def sample normal_value
+    -1 + (normal_value * 2)
   end
 
   def wave_setting=(new_setting)
@@ -32,13 +66,7 @@ class Novitiate
     @waveform.frequency
   end
 
-  def turn_on
-  end
-
-  def turn_off
-  end
-
-  def silent?
-    true
+  def playing?
+    false
   end
 end
