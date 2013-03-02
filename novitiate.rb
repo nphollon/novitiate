@@ -3,14 +3,17 @@ require_relative '../ruby-portaudio/lib/portaudio'
 
 class Novitiate
   attr_reader :buffer, :step
-  attr_accessor :gain
+  attr_accessor :gain, :modulation_amount
 
   def initialize
     @gain = 1.0
-    @phase = 0.0
+    @osc_phase = 0.0
+    @mod_phase = 0.0
 
     @oscillator = Oscillator.new(20, 20_000, 0.5)
-    @modulator = Oscillator.new(10, 100, 0.0)
+    @modulator = Oscillator.new(0.1, 100, 0.0)
+
+    @modulation_amount = 0.0
   end
 
   def turn_on
@@ -41,14 +44,19 @@ class Novitiate
   end
 
   def fill_buffer
-    @buffer.fill do
-      @phase = (@phase + self.osc_frequency*@step).modulo(1)
-      sample osc_waveform.eval(@phase)
+    buffer.fill do
+      @osc_phase = (@osc_phase + osc_frequency*step).modulo(1)
+      @mod_phase = (@mod_phase + mod_frequency*step).modulo(1)
+      sample
     end
   end
 
-  def sample normal_value
-    @gain * (2 * normal_value - 1)
+  def sample
+    if modulation_amount < 0.5
+      gain * osc_waveform.eval(@osc_phase)
+    else
+      gain * osc_waveform.eval(@osc_phase) * mod_waveform.eval(@mod_phase)
+    end
   end
 
   def osc_waveform

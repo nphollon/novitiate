@@ -16,9 +16,12 @@ describe "Novitiate" do
 
   describe "defaults" do
     its (:osc_wave_setting) { should == :sine }
-    its (:osc_freq_setting) { should == 0.5 }
+    its (:osc_freq_setting) { should be_within(1e-6).of(0.5) }
+    its (:osc_frequency) { should be_within(1e-6).of(2*10**2.5) }
+    its (:modulation_amount) { should be_within(1e-6).of(0.0) }
     its (:mod_wave_setting) { should == :sine }
-    its (:mod_freq_setting) { should == 0.0 }
+    its (:mod_freq_setting) { should be_within(1e-6).of(0.0) }
+    its (:mod_frequency) { should be_within(1e-6).of(0.1) }
     its (:gain) { should == 1.0 }
     its (:step) { should == 44100.0**-1 }
   end
@@ -167,6 +170,60 @@ describe "Novitiate" do
         sample1 = @nov.buffer[@nov.buffer.frames-1,0]
         @nov.fill_buffer
         @nov.buffer[0,0].should be_within(1e-6).of(sample1 + @nov.osc_frequency/22050.0)
+      end
+    end
+
+    describe "without modulation" do
+      before { @nov.osc_frequency = 44100.0 / 1024.0 }
+      
+      it "correctly samples sine wave" do
+        @nov.fill_buffer
+        (0...1024).each do |i|
+          @nov.buffer[i,0].should be_within(1e-6).of(Math.sin((i+1) * 2*Math::PI / 1024))
+        end
+      end
+
+      it "correctly samples square wave" do
+        @nov.osc_wave_setting = :square
+        @nov.fill_buffer
+        (0...1024).each do |i|
+          @nov.buffer[i,0].should be_within(1e-6).of((512...1024).include?(i+1) ? 1 : -1)
+        end
+      end
+
+      it "correctly samples sawtooth wave" do
+        @nov.osc_wave_setting = :sawtooth
+        @nov.fill_buffer
+        (1...1024).each do |i|
+          @nov.buffer[i-1,0].should be_within(1e-6).of(2.0*i/1024 - 1)
+        end
+      end
+
+      it "correctly samples triangle wave" do
+        @nov.osc_wave_setting = :triangle
+        @nov.fill_buffer
+        (1...512).each do |i|
+          @nov.buffer[i-1,0].should be_within(1e-6).of(4.0*i/1024 - 1)
+        end
+        (512...1024).each do |i|
+          @nov.buffer[i-1,0].should be_within(1e-6).of(3 - 4.0*i/1024)
+        end
+      end
+    end
+
+    describe "with modulation" do
+      before do
+        @nov.osc_frequency = 44100.0 / 1024.0
+        @nov.mod_frequency = 441.0 / 1024.0
+        @nov.modulation_amount = 1.0
+      end
+      
+      it "should combine oscillator and modulator waveforms" do
+        @nov.fill_buffer
+        (0...@nov.buffer.frames).each do |i|
+          evaluation = Math.sin((i+1) * 2*Math::PI/1024) * Math.sin((i+1) * 2*Math::PI/102400)
+          @nov.buffer[i,0].should be_within(1e-6).of(evaluation)
+        end
       end
     end
   end
