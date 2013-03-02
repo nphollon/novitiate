@@ -83,7 +83,7 @@ class Novitiate
     @oscillator.frequency_setting = new_setting
   end
 
-  def slew_frequency(slew_rate) # in octaves per second
+  def slew_osc_frequency(slew_rate) # in octaves per second
     self.osc_freq_setting += slew_rate * Math.log10(2)/3 * @step * @buffer.frames
   end
 
@@ -113,6 +113,10 @@ class Novitiate
 
   def mod_freq_setting=(new_setting)
     @modulator.frequency_setting = new_setting
+  end
+
+  def slew_mod_frequency(slew_rate)
+    self.mod_freq_setting += slew_rate * Math.log10(2)/3 * @step * @buffer.frames
   end
 
   def mod_frequency

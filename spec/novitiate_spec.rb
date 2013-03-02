@@ -73,7 +73,7 @@ describe "Novitiate" do
 
       it "can turn frequency knob in units of octaves per second" do
         freq2 = @nov.osc_frequency
-        @nov.slew_frequency(1)
+        @nov.slew_osc_frequency(1)
         @nov.osc_frequency.should be_within(1e-6).of(1.0162250658168974*freq2)
       end
 
@@ -127,6 +127,12 @@ describe "Novitiate" do
 
       it "can't have a frequency setting lower than 0" do
         expect { @nov.mod_freq_setting = -0.001 }.to raise_error(RangeError)
+      end
+
+      it "can turn frequency knob in units of octaves per second" do
+        freq2 = @nov.mod_frequency
+        @nov.slew_mod_frequency(1)
+        @nov.mod_frequency.should be_within(1e-6).of(1.0162250658168974*freq2)
       end
 
       it "can set frequency directly" do
