@@ -215,14 +215,29 @@ describe "Novitiate" do
       before do
         @nov.osc_frequency = 44100.0 / 1024.0
         @nov.mod_frequency = 441.0 / 1024.0
-        @nov.modulation_amount = 1.0
       end
+
+      describe "full modulation amount" do
+        before { @nov.modulation_amount = 1.0 }
       
-      it "should combine oscillator and modulator waveforms" do
-        @nov.fill_buffer
-        (0...@nov.buffer.frames).each do |i|
-          evaluation = Math.sin((i+1) * 2*Math::PI/1024) * Math.sin((i+1) * 2*Math::PI/102400)
-          @nov.buffer[i,0].should be_within(1e-6).of(evaluation)
+        it "should modulate amplitude of oscillator" do
+          @nov.fill_buffer
+          (0...@nov.buffer.frames).each do |i|
+            evaluation = Math.sin((i+1) * 2*Math::PI/1024) * Math.sin((i+1) * 2*Math::PI/102400)
+            @nov.buffer[i,0].should be_within(1e-6).of(evaluation)
+          end
+        end
+      end
+
+      describe "half modulation amount" do
+        before { @nov.modulation_amount = 0.5 }
+
+        it "should modulate amplitude of oscillator" do
+          @nov.fill_buffer
+          (0...@nov.buffer.frames).each do |i|
+            evaluation = Math.sin((i+1) * 2*Math::PI/1024) * (0.5 + 0.5*Math.sin((i+1) * 2*Math::PI/102400))
+            @nov.buffer[i,0].should be_within(1e-6).of(evaluation)
+          end
         end
       end
     end

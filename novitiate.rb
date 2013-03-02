@@ -52,11 +52,15 @@ class Novitiate
   end
 
   def sample
-    if modulation_amount < 0.5
-      gain * osc_waveform.eval(@osc_phase)
-    else
-      gain * osc_waveform.eval(@osc_phase) * mod_waveform.eval(@mod_phase)
-    end
+    gain * sample_oscillation * sample_modulation
+  end
+
+  def sample_oscillation
+    osc_waveform.eval(@osc_phase)
+  end
+
+  def sample_modulation
+    1 - modulation_amount + modulation_amount*mod_waveform.eval(@mod_phase)
   end
 
   def osc_waveform
