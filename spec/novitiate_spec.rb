@@ -1,5 +1,6 @@
 require 'spec_helper'
 require_relative '../novitiate'
+require_relative '../oscillator'
 
 describe "Novitiate" do
   before do
@@ -25,22 +26,22 @@ describe "Novitiate" do
   describe "oscillation" do
     describe "wave_settings" do
       it "gives sine wave output by default" do
-        @nov.osc_waveform.class.should == Novitiate::SineWave
+        @nov.osc_waveform.class.should == Oscillator::SineWave
       end
 
       specify "triangle wave setting" do
         @nov.osc_wave_setting = :triangle
-        @nov.osc_waveform.class.should == Novitiate::TriangleWave
+        @nov.osc_waveform.class.should == Oscillator::TriangleWave
       end
 
       specify "square wave setting" do
         @nov.osc_wave_setting = :square
-        @nov.osc_waveform.class.should == Novitiate::SquareWave
+        @nov.osc_waveform.class.should == Oscillator::SquareWave
       end
 
       specify "sawtooth wave setting" do
         @nov.osc_wave_setting = :sawtooth
-        @nov.osc_waveform.class.should == Novitiate::SawtoothWave
+        @nov.osc_waveform.class.should == Oscillator::SawtoothWave
       end
     end
 
@@ -83,22 +84,22 @@ describe "Novitiate" do
   describe "modulation" do
     describe "wave_settings" do
       it "gives sine wave output by default" do
-        @nov.mod_waveform.class.should == Novitiate::SineWave
+        @nov.mod_waveform.class.should == Oscillator::SineWave
       end
 
       specify "triangle wave setting" do
         @nov.mod_wave_setting = :triangle
-        @nov.mod_waveform.class.should == Novitiate::TriangleWave
+        @nov.mod_waveform.class.should == Oscillator::TriangleWave
       end
 
       specify "square wave setting" do
         @nov.mod_wave_setting = :square
-        @nov.mod_waveform.class.should == Novitiate::SquareWave
+        @nov.mod_waveform.class.should == Oscillator::SquareWave
       end
 
       specify "sawtooth wave setting" do
         @nov.mod_wave_setting = :sawtooth
-        @nov.mod_waveform.class.should == Novitiate::SawtoothWave
+        @nov.mod_waveform.class.should == Oscillator::SawtoothWave
       end
     end
 

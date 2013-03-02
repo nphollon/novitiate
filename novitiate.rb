@@ -1,25 +1,16 @@
-require_relative './waveform'
+require_relative './oscillator'
 require_relative '../ruby-portaudio/lib/portaudio'
 
 class Novitiate
-  include Waveform
-
-  attr_reader :buffer, :step,
-    :osc_wave_setting, :osc_waveform, :osc_freq_setting, 
-    :mod_wave_setting, :mod_waveform, :mod_freq_setting
+  attr_reader :buffer, :step
   attr_accessor :gain
 
   def initialize
     @gain = 1.0
     @phase = 0.0
 
-    @osc_wave_setting = :sine
-    @osc_waveform = SineWave.new(440.0)
-    self.osc_freq_setting = 0.5
-
-    @mod_wave_setting = :sine
-    @mod_waveform = SineWave.new(440.0)
-    self.mod_freq_setting = 0.0
+    @oscillator = Oscillator.new(20, 20_000, 0.5)
+    @modulator = Oscillator.new(10, 100, 0.0)
   end
 
   def turn_on
@@ -52,7 +43,7 @@ class Novitiate
   def fill_buffer
     @buffer.fill do
       @phase = (@phase + self.osc_frequency*@step).modulo(1)
-      sample @osc_waveform.eval(@phase)
+      sample osc_waveform.eval(@phase)
     end
   end
 
@@ -60,60 +51,63 @@ class Novitiate
     @gain * (2 * normal_value - 1)
   end
 
+  def osc_waveform
+    @oscillator.waveform
+  end
+
+  def osc_wave_setting
+    @oscillator.wave_setting
+  end
+
   def osc_wave_setting=(new_setting)
-    @osc_wave_setting = new_setting
-    @osc_waveform = {
-      sine: SineWave,
-      triangle: TriangleWave,
-      square: SquareWave,
-      sawtooth: SawtoothWave
-      }[new_setting].new( osc_frequency )
+    @oscillator.wave_setting = new_setting
+  end
+
+  def osc_freq_setting
+    @oscillator.frequency_setting
   end
 
   def osc_freq_setting=(new_setting)
-    raise RangeError, "oscillation frequency setting must be between 0 and 1." unless (0..1).include?(new_setting)
-    @osc_freq_setting = new_setting
-    @osc_waveform.frequency = 2 * 10 ** (3*new_setting + 1)
+    @oscillator.frequency_setting = new_setting
   end
 
   def slew_frequency(slew_rate) # in octaves per second
     self.osc_freq_setting += slew_rate * Math.log10(2)/3 * @step * @buffer.frames
   end
 
-  def osc_frequency=(new_frequency)
-    self.osc_freq_setting = (Math.log10(0.5*new_frequency) - 1) / 3
+  def osc_frequency
+    @oscillator.frequency
   end
 
-  def osc_frequency
-    @osc_waveform.frequency
+  def osc_frequency=(new_frequency)
+    @oscillator.frequency = new_frequency
+  end
+
+  def mod_waveform
+    @modulator.waveform
+  end
+
+  def mod_wave_setting
+    @modulator.wave_setting
   end
 
   def mod_wave_setting=(new_setting)
-    @mod_wave_setting = new_setting
-    @mod_waveform = {
-      sine: SineWave,
-      triangle: TriangleWave,
-      square: SquareWave,
-      sawtooth: SawtoothWave
-      }[new_setting].new( mod_frequency )
+    @modulator.wave_setting = new_setting
+  end
+
+  def mod_freq_setting
+    @modulator.frequency_setting
   end
 
   def mod_freq_setting=(new_setting)
-    raise RangeError, "modulation frequency setting must be between 0 and 1." unless (0..1).include?(new_setting)
-    @mod_freq_setting = new_setting
-    @mod_waveform.frequency = 2 * 10 ** (3*new_setting + 1)
-  end
-
-  def mod_frequency=(new_frequency)
-    self.mod_freq_setting = (Math.log10(0.5*new_frequency) - 1) / 3
+    @modulator.frequency_setting = new_setting
   end
 
   def mod_frequency
-    @mod_waveform.frequency
+    @modulator.frequency
   end
 
-
-  def playing?
-    false
+  def mod_frequency=(new_frequency)
+    @modulator.frequency = new_frequency
   end
 end
