@@ -1,18 +1,19 @@
 require_relative '../../ruby-portaudio/lib/portaudio'
 
 class Speaker
-  attr_reader :buffer, :gain, :output
+  attr_reader :buffer, :gain, :output, :buffer_size
 
-  def initialize(output = :default)
-    @buffer = PortAudio::SampleBuffer.new(format: :float32)
-    @output = output
+  def initialize(options = {})
+    @buffer_size = options[:buffer_size] || 256
+    @buffer = PortAudio::SampleBuffer.new(format: :float32, frames: @buffer_size)
+    @output = options[:output] || :default
     self.gain = 1.0
   end
 
   def turn_on
     PortAudio.init
     @device = PortAudio.default_output_device
-    @stream = @device.open_stream(format: :float32)
+    @stream = @device.open_stream(format: :float32, frames: @buffer_size)
     @time_step = @device.default_sample_rate**-1
   end
 

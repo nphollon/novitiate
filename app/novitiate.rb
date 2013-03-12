@@ -10,7 +10,7 @@ class Novitiate
     @renderer = renderer
     @oscillator = Oscillator.new(20, 20_000)
     @modulator = Modulator.new(@oscillator, 0.1, 100, smooth = true)
-    @filter = Filter.new(@modulator)
+    @filter = Filter.new(@modulator, 10)
   end
 
   def turn_on
@@ -107,6 +107,10 @@ class Novitiate
 
   def resonance_amount=(new_amount)
     filter.resonance_amount = new_amount
+  end
+
+  def filter_memory
+    filter.cache_size
   end
 
   private

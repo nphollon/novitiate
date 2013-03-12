@@ -2,7 +2,7 @@ require 'spec_helper'
 require_relative '../../ruby-portaudio/lib/portaudio'
 
 describe Speaker do
-  subject { Speaker.new(:mute) }
+  subject { Speaker.new(output: :mute, buffer_size: 1024) }
   
   it { should respond_to(:buffer) }
   it { should respond_to(:output) }
@@ -14,7 +14,7 @@ describe Speaker do
     end
 
     it "should take output type as a parameter" do
-      Speaker.new(:mute).output.should == :mute
+      Speaker.new(output: :mute).output.should == :mute
     end
   end
 
@@ -177,7 +177,7 @@ describe Speaker do
     end
 
     describe "loud speaker" do
-      subject { Speaker.new }
+      subject { Speaker.new(buffer_size: 1024) }
       it "should pass its buffer to its stream after being filled" do
         subject.stream.should_receive(:<<).with(subject.buffer).exactly(5).times
         subject.play(0.11, sampleable) {}

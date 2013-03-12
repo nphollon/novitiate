@@ -1,3 +1,5 @@
+require 'inline'
+
 module Waveform
 	class Waveform
 		attr_reader :frequency
@@ -6,68 +8,108 @@ module Waveform
 			@frequency = frequency
 		end
 
-		def eval(phase)
-      raise NotImplementedError
-		end
-
     def frequency=(new_frequency)
       raise RangeError if new_frequency <= 0
       @frequency = new_frequency
     end
 
     def value_at(time)
-      eval( (time*frequency).modulo(1) )
+      compute_value(time, self.frequency)
+    end
+
+    def compute_value(time, frequency)
+      raise NotImplementedError
     end
 	end
 
 
   class SineWave < Waveform
-    def eval(phase)
-      Math.sin( phase * 2*Math::PI )
+    inline do |binding|
+      binding.add_static 'PI', Math::PI, 'double'
+      binding.include '"math.h"'
+      binding.c <<-EOC
+        double compute_value(double time, double frequency) {
+          double phase = time*frequency - floor(time*frequency);
+          return sin(phase * 2 * PI);
+        }
+      EOC
     end
   end
 
   class TriangleWave < Waveform
-    def eval(phase)
-      (phase < 0.5) ? 4*phase - 1 : 3 - 4*phase
+    inline do |binding|
+      binding.add_static 'PI', Math::PI, 'double'
+      binding.include '"math.h"'
+      binding.c <<-EOC
+        double compute_value(double time, double frequency) {
+          double phase = time*frequency - floor(time*frequency);
+          return (phase < 0.5) ? (4*phase - 1) : (3 - 4*phase);
+        }
+      EOC
     end
   end
 
   class SquareWave < Waveform
-    def eval(phase)
-      (phase < 0.5) ? -1 : 1
+    inline do |binding|
+      binding.add_static 'PI', Math::PI, 'double'
+      binding.include '"math.h"'
+      binding.c <<-EOC
+        double compute_value(double time, double frequency) {
+          double phase = time*frequency - floor(time*frequency);
+          return (phase < 0.5) ? -1 : 1;
+        }
+      EOC
     end
   end
 
   class SawtoothWave < Waveform
-    def eval(phase)
-      2*phase - 1
+    inline do |binding|
+      binding.add_static 'PI', Math::PI, 'double'
+      binding.include '"math.h"'
+      binding.c <<-EOC
+        double compute_value(double time, double frequency) {
+          double phase = time*frequency - floor(time*frequency);
+          return 2*phase - 1;
+        }
+      EOC
     end
   end
 
   class SmoothSquareWave < SquareWave
-    def eval(phase)
-      case phase
-      when (0..0.05)
-        -40.0 * phase + 1
-      when (0.5..0.55)
-        40.0 * (phase-0.5) - 1
-      else
-        super phase
-      end
+    inline do |binding|
+      binding.add_static 'PI', Math::PI, 'double'
+      binding.include '"math.h"'
+      binding.c <<-EOC
+        double compute_value(double time, double frequency) {
+          double phase = time*frequency - floor(time*frequency);
+          if (phase < 0.05)
+            return -40*phase + 1;
+          else if (phase < 0.5)
+            return -1;
+          else if (phase < 0.55)
+            return 40*(phase-0.5) - 1;
+          else
+            return 1;
+        }
+      EOC
     end
   end
 
   class SmoothSawtoothWave < SawtoothWave
-    def eval(phase)
-      case phase
-      when (0..0.025)
-        -40.0 * phase
-      when (0.975..1)
-        -40.0 * (phase - 0.975) + 1
-      else
-        2/0.95 * (phase - 0.025) - 1
-      end
+    inline do |binding|
+      binding.add_static 'PI', Math::PI, 'double'
+      binding.include '"math.h"'
+      binding.c <<-EOC
+        double compute_value(double time, double frequency) {
+          double phase = time*frequency - floor(time*frequency);
+          if (phase < 0.025)
+            return -40 * phase;
+          else if (phase < 0.975)
+            return 2/0.95 * (phase - 0.025) - 1;
+          else
+            return -40 * (phase - 0.975) + 1;
+        }
+      EOC
     end
   end
 end

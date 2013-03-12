@@ -4,7 +4,7 @@ require_relative '../app/oscillator'
 require_relative '../app/speaker'
 
 describe "Novitiate" do
-  let(:speaker) { Speaker.new(:mute) }
+  let(:speaker) { Speaker.new(output: :mute) }
   let(:nov) { Novitiate.new(speaker) }
   subject { nov }
 
@@ -293,5 +293,9 @@ describe "Novitiate" do
       nov.resonance_amount = -0.1
       nov.resonance_amount.should be_within(1e-6).of(0)
     end
+  end
+
+  describe "filter_memory" do
+    its(:filter_memory) { should == 10 }
   end
 end

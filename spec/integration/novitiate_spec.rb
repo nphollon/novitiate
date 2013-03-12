@@ -4,7 +4,7 @@ require_relative '../../app/speaker'
 require_relative '../../../ruby-portaudio/lib/portaudio'
 
 describe Novitiate do
-  let(:speaker) { Speaker.new(:mute) }
+  let(:speaker) { Speaker.new(output: :mute) }
   let(:novitiate) { Novitiate.new(speaker) }
   subject { novitiate }
   before { novitiate.turn_on }
@@ -139,11 +139,26 @@ describe Novitiate do
   end
 
   describe "Filter settings" do
-    specify "controlling the filter" do
-      # I don't know what the filter is supposed to sound like, so this just tests the controls
-      novitiate.filter_amount = 0.5
-      novitiate.resonance_amount = 0.5
-      novitiate.play_filter(1)
+    describe "with no resonance" do
+
+      before { novitiate.resonance_amount = 0 }
+
+      it "should be silent if filter_amount is 0" do
+        novitiate.filter_amount = 0
+        novitiate.play_filter(1e-5)
+        speaker.buffer.each do |f,c,s|
+          s.should be_within(1e-6).of(0)
+        end
+      end
+
+      it "should be neutral if filter amount is 1" do
+        novitiate.filter_amount = 1
+        novitiate.osc_wave_setting = :square
+        novitiate.play_filter(1e-5)
+        speaker.buffer.each do |f,c,s|
+          s.abs.should be_within(1e-6).of(1)
+        end
+      end
     end
   end
 end
