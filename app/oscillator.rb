@@ -1,36 +1,32 @@
 require_relative './waveform'
 
 class Oscillator
-  include Waveform
+  include AudioSampling
 
-  attr_reader :waveform, :wave_setting, :frequency_setting, :min_frequency, :max_frequency
+  attr_reader :wave_setting, :frequency_setting, :min_frequency, :max_frequency, :frequency
 
   def initialize(min_freq, max_freq, smooth=false)
     @min_frequency = min_freq
     @max_frequency = max_freq
     @wave_setting = :sine
     @time = 0
-    @waveform = SineWave.new(440.0)
 
     self.frequency_setting = 0.5
 
     @waveform_hash = if smooth
-      { sine: SineWave, triangle: TriangleWave, square: SmoothSquareWave, sawtooth: SmoothSawtoothWave }
+      { sine: :sample_sine, triangle: :sample_triangle, square: :sample_smooth_square, sawtooth: :sample_smooth_sawtooth }
     else
-      { sine: SineWave, triangle: TriangleWave, square: SquareWave, sawtooth: SawtoothWave }
+      { sine: :sample_sine, triangle: :sample_triangle, square: :sample_square, sawtooth: :sample_sawtooth }
     end
   end
 
   def sample(time_step)
     @time += time_step
-    waveform.value_at(@time)
+    send(@waveform_hash[wave_setting], get_phase(@time, frequency))
   end
 
   def wave_setting=(new_setting)
-    if @waveform_hash.has_key?(new_setting)
-      @wave_setting = new_setting
-      @waveform = @waveform_hash[new_setting].new( frequency )
-    end
+    @wave_setting = new_setting if @waveform_hash.has_key?(new_setting)
   end
 
   def frequency_setting=(new_setting)
@@ -41,11 +37,7 @@ class Oscillator
     else
       @frequency_setting = new_setting
     end
-    waveform.frequency = min_frequency * (max_frequency/min_frequency)**frequency_setting
-  end
-
-  def frequency
-    waveform.frequency
+    @frequency = min_frequency * (max_frequency/min_frequency)**frequency_setting
   end
 
   def frequency=(new_frequency)

@@ -1,6 +1,6 @@
 require_relative 'app/novitiate'  
 
-n = Novitiate.new(Speaker.new(sample_doubling = true))
+n = Novitiate.new
 
 puts 'Starting Novitiate...'
 n.turn_on
