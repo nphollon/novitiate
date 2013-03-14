@@ -33,25 +33,7 @@ describe Oscillator do
   end
 
   describe "sample" do
-    it "should call get_phase" do
-      subject.should_receive(:get_phase).with(1).and_call_original
-      subject.sample(1)
-    end
-
-    it "should call sample_:waveform" do
-      subject.stub(:get_phase).and_return(0.5)
-      subject.should_receive(:sample_sine).with(0.5)
-      subject.sample(1)
-    end
-
-    describe "accumulating time steps" do
-      before { subject.sample(5) }
-
-      it "should add sample parameter to running total" do
-        subject.should_receive(:get_phase).with(10).and_call_original
-        subject.sample(5)
-      end
-    end
+    
   end
 
   describe "frequency_setting" do
