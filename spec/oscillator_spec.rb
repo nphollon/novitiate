@@ -34,7 +34,7 @@ describe Oscillator do
 
   describe "sample" do
     it "should call get_phase" do
-      subject.should_receive(:get_phase).with(1, 100).and_call_original
+      subject.should_receive(:get_phase).with(1).and_call_original
       subject.sample(1)
     end
 
@@ -48,7 +48,7 @@ describe Oscillator do
       before { subject.sample(5) }
 
       it "should add sample parameter to running total" do
-        subject.should_receive(:get_phase).with(10, 100).and_call_original
+        subject.should_receive(:get_phase).with(10).and_call_original
         subject.sample(5)
       end
     end

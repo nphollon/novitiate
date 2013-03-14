@@ -24,37 +24,37 @@ module Waveform
 
   class SineWave < Waveform
     def value_at(time)
-      self.sample_sine(self.get_phase(time, self.frequency))
+      sample_sine(self.get_phase(time))
     end
   end
 
   class TriangleWave < Waveform
     def value_at(time)
-      self.sample_triangle(self.get_phase(time, self.frequency))
+      sample_triangle(self.get_phase(time))
     end
   end
 
   class SquareWave < Waveform
     def value_at(time)
-      self.sample_square(self.get_phase(time, self.frequency))
+      sample_square(self.get_phase(time))
     end
   end
 
   class SawtoothWave < Waveform
     def value_at(time)
-      self.sample_sawtooth(self.get_phase(time, self.frequency))
+      sample_sawtooth(self.get_phase(time))
     end
   end
 
   class SmoothSquareWave < SquareWave
     def value_at(time)
-      self.sample_smooth_square(self.get_phase(time, self.frequency))
+      sample_smooth_square(self.get_phase(time))
     end
   end
 
   class SmoothSawtoothWave < SawtoothWave
     def value_at(time)
-      self.sample_smooth_sawtooth(self.get_phase(time, self.frequency))
+      sample_smooth_sawtooth(self.get_phase(time))
     end
   end
 end

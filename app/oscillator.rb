@@ -22,7 +22,7 @@ class Oscillator
 
   def sample(time_step)
     @time += time_step
-    send(@waveform_hash[wave_setting], get_phase(@time, frequency))
+    send(@waveform_hash[wave_setting], get_phase(@time))
   end
 
   def wave_setting=(new_setting)
