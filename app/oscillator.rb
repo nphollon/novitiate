@@ -1,7 +1,9 @@
+require 'inline'
 require_relative './waveform'
 
 class Oscillator
-  attr_reader :wave_setting, :frequency_setting, :min_frequency, :max_frequency, :frequency
+  attr_reader :wave_setting, :frequency_setting, :min_frequency, :max_frequency, :frequency, :waveform
+  attr_accessor :time
 
   def initialize(min_freq, max_freq, smooth=false)
     @min_frequency = min_freq
@@ -19,9 +21,17 @@ class Oscillator
     end
   end
 
-  def sample(time_step)
-    @time += time_step
-    @waveform.sample(@time)
+  inline do |builder|
+    builder.c <<-EOC
+      double sample(double time_step) {
+        double time = NUM2DBL( rb_funcall(self, rb_intern("time"), 0) );
+        time += time_step;
+        rb_funcall(self, rb_intern("time="), 1, rb_float_new(time));
+        VALUE wav = rb_funcall(self, rb_intern("waveform"), 0);
+        VALUE wav_sample = rb_funcall(wav, rb_intern("sample"), 1, rb_float_new(time));
+        return NUM2DBL(wav_sample);
+      }
+    EOC
   end
 
   def wave_setting=(new_setting)
