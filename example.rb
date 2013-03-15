@@ -8,17 +8,22 @@ n.turn_on
 puts 'Playing oscillator (632 Hz square)...'
 n.gain = 0.5
 n.osc_wave_setting = :square
-n.play_oscillator(5)
+n.play_oscillator(2)
 
-puts 'Playing oscillator with LFO (3 Hz sawtooth)...'
+puts 'Adding LFO (3 Hz sawtooth)...'
 n.mod_amount = 1
 n.mod_wave_setting = :sawtooth
-n.play_modulator(5)
+n.play_modulator(2)
 
-puts 'Playing oscillator with LPF (level = 0.3, resonance = 0)...'
-n.filter_amount = 0.3
-n.mod_amount = 0
-n.play_filter(5)
+puts 'Adding LPF (level = 0.3, resonance = 0)...'
+n.filter_level = 0.3
+n.play_filter(2)
+
+(1..10).each do |i|
+  n.filter_resonance = i * 0.1
+  puts "(resonance = #{n.filter_resonance})..."
+  n.play_filter(1)
+end
 
 puts 'Stopping Novitiate'
 n.turn_off

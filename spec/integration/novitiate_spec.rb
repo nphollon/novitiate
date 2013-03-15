@@ -141,10 +141,10 @@ describe Novitiate do
   describe "Filter settings" do
     describe "with no resonance" do
 
-      before { novitiate.resonance_amount = 0 }
+      before { novitiate.filter_resonance = 0 }
 
-      it "should be silent if filter_amount is 0" do
-        novitiate.filter_amount = 0
+      it "should be silent if filter_level is 0" do
+        novitiate.filter_level = 0
         novitiate.play_filter(1e-5)
         speaker.buffer.each do |f,c,s|
           s.should be_within(1e-6).of(0)
@@ -152,7 +152,7 @@ describe Novitiate do
       end
 
       it "should be neutral if filter amount is 1" do
-        novitiate.filter_amount = 1
+        novitiate.filter_level = 1
         novitiate.osc_wave_setting = :square
         novitiate.play_filter(1e-5)
         speaker.buffer.each do |f,c,s|

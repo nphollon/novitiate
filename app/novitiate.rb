@@ -10,7 +10,7 @@ class Novitiate
     @renderer = renderer
     @oscillator = Oscillator.new(20, 20_000)
     @modulator = Modulator.new(@oscillator, 0.1, 100, smooth = true)
-    @filter = Filter.new(@modulator, 10)
+    @filter = Filter.new(@modulator, 5)
   end
 
   def turn_on
@@ -22,19 +22,19 @@ class Novitiate
   end
 
   def fire_envelope
-    renderer.play(1e-10, Envelope.new) {}
+    renderer.play(1e-10, Envelope.new) 
   end
 
   def play_oscillator(duration)
-    renderer.play(duration, oscillator) {}
+    renderer.play(duration, oscillator) 
   end
 
   def play_modulator(duration)
-    renderer.play(duration, modulator) {}
+    renderer.play(duration, modulator) 
   end
 
   def play_filter(duration)
-    renderer.play(duration, filter) {}
+    renderer.play(duration, filter) 
   end
 
   def gain
@@ -93,24 +93,20 @@ class Novitiate
     modulator.amount = new_amount
   end
 
-  def filter_amount
+  def filter_level
     filter.level
   end
 
-  def filter_amount=(new_amount)
+  def filter_level=(new_amount)
     filter.level = new_amount
   end
 
-  def resonance_amount
-    filter.resonance_amount
+  def filter_resonance
+    filter.resonance
   end
 
-  def resonance_amount=(new_amount)
-    filter.resonance_amount = new_amount
-  end
-
-  def filter_memory
-    filter.cache_size
+  def filter_resonance=(new_amount)
+    filter.resonance = new_amount
   end
 
   private

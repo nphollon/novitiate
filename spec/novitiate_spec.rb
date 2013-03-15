@@ -261,41 +261,37 @@ describe "Novitiate" do
     end
   end
 
-  describe "filter_amount" do
+  describe "filter_level" do
     before { nov.turn_on }
     after { nov.turn_off }
 
-    its(:filter_amount) { should == 0 }    
+    its(:filter_level) { should == 0 }    
 
     it "can be set as high as 1" do
-      nov.filter_amount = 1.1
-      nov.filter_amount.should be_within(1e-6).of(1)
+      nov.filter_level = 1.1
+      nov.filter_level.should be_within(1e-6).of(1)
     end
 
     it "can be set as low as 0" do
-      nov.filter_amount = -0.1
-      nov.filter_amount.should be_within(1e-6).of(0)
+      nov.filter_level = -0.1
+      nov.filter_level.should be_within(1e-6).of(0)
     end
   end
 
-  describe "resonance_amount" do
+  describe "filter_resonance" do
     before { nov.turn_on }
     after { nov.turn_off }
 
-    its(:resonance_amount) { should == 0 }    
+    its(:filter_resonance) { should == 0 }    
 
     it "can be set as high as 1" do
-      nov.resonance_amount = 1.1
-      nov.resonance_amount.should be_within(1e-6).of(1)
+      nov.filter_resonance = 1.1
+      nov.filter_resonance.should be_within(1e-6).of(1)
     end
 
     it "can be set as low as 0" do
-      nov.resonance_amount = -0.1
-      nov.resonance_amount.should be_within(1e-6).of(0)
+      nov.filter_resonance = -0.1
+      nov.filter_resonance.should be_within(1e-6).of(0)
     end
-  end
-
-  describe "filter_memory" do
-    its(:filter_memory) { should == 10 }
   end
 end

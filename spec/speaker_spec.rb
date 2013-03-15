@@ -152,42 +152,42 @@ describe Speaker do
 
     it "should start the stream" do
       subject.stream.should_receive(:start).and_call_original
-      subject.play(0, sampleable) {}
+      subject.play(0, sampleable) 
     end
 
     it "should stop the stream" do
       subject.stream.should_receive(:stop).and_call_original
-      subject.play(0, sampleable) {}
+      subject.play(0, sampleable) 
     end
 
-    it "should yield to a block and pass a parameter" do
+    xit "should yield to a block and pass a parameter" do
       @i = 10
       subject.play(1e-5, sampleable) { |t| @i = t }
       @i.should be_within(1e-10).of(0)
     end
 
-    it "should yield multiple times based on parameter" do
+    xit "should yield multiple times based on parameter" do
       STDOUT.should_receive(:puts).with("test").exactly(5).times
       subject.play(0.11, sampleable) { puts "test"}
     end
 
     it "should fill its buffer multiple times based on parameter" do
       subject.should_receive(:fill_buffer).exactly(5).times
-      subject.play(0.11, sampleable) {}
+      subject.play(0.11, sampleable) 
     end
 
     describe "loud speaker" do
       subject { Speaker.new(buffer_size: 1024) }
       it "should pass its buffer to its stream after being filled" do
         subject.stream.should_receive(:<<).with(subject.buffer).exactly(5).times
-        subject.play(0.11, sampleable) {}
+        subject.play(0.11, sampleable) 
       end
     end
 
     describe "mute speaker" do
       it "should never write to its stream" do
         subject.stream.should_receive(:<<).exactly(0).times
-        subject.play(0.11, sampleable) {}
+        subject.play(0.11, sampleable) 
       end
     end
 

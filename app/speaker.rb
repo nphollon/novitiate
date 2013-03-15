@@ -26,17 +26,13 @@ class Speaker
 
   def play(duration, sampleable)
     @stream.start
-
     time = 0
     while time < duration
       
       fill_buffer(sampleable)
       @stream << @buffer unless @output == :mute
-
-      yield time
       time += @buffer.frames * @time_step
     end
-
     @stream.stop
   end
 
