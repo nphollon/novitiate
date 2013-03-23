@@ -74,8 +74,18 @@ describe Filter do
   describe "update_cache" do
     it "should add parameter to cache array" do
       subject.update_cache(1)
-      subject.update_cache(2)
-      subject.cache.should == [2, 1, 0, 0, 0]
+      subject.update_cache(-1)
+      subject.cache.should == [-1, 1, 0, 0, 0]
+    end
+
+    it "should round values > 1 to 1" do
+      subject.update_cache(5)
+      subject.cache.should == [1, 0, 0, 0, 0]
+    end
+
+    it "should round values < -1 to -1" do
+      subject.update_cache(-5)
+      subject.cache.should == [-1, 0, 0, 0, 0]
     end
   end
 end

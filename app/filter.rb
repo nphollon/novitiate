@@ -158,7 +158,13 @@ class Filter
 
         for (i = filter->cache_size-1; i > 0; i--)
           filter->cache[i] = filter->cache[i-1];
-        filter->cache[0] = new_value;
+
+        if (new_value > 1)
+          filter->cache[0] = 1;
+        else if (new_value < -1)
+          filter->cache[0] = -1;
+        else
+          filter->cache[0] = new_value;
       }
     EOC
   end

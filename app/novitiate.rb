@@ -10,7 +10,7 @@ class Novitiate
     @renderer = renderer
     @oscillator = Oscillator.new(20, 20_000)
     @modulator = Modulator.new(@oscillator, 0.1, 100, smooth = true)
-    @filter = Filter.new(@modulator, 5)
+    @filter = Filter.new(@modulator, 2)
   end
 
   def turn_on
