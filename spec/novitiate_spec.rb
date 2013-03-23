@@ -10,33 +10,13 @@ describe "Novitiate" do
 
   describe "initialize" do
     it "should have a loud speaker by default" do
-      PortAudio::C.should_receive(:write_stream)
       loud_nov = Novitiate.new
-      loud_nov.turn_on
-      loud_nov.fire_envelope
-      loud_nov.turn_off
-    end
-  end
-
-  describe "turn_on" do
-    it "should turn on its speaker" do
-      speaker.should_receive(:turn_on)
-      nov.turn_on
-    end
-  end
-
-  describe "turn_off" do
-    before { nov.turn_on }
-    it "should turn off its speaker" do
-      speaker.should_receive(:turn_off).and_call_original
-      nov.turn_off
+      loud_speaker = loud_nov.send :renderer
+      loud_speaker.mute.should be_false
     end
   end
 
   describe "fire_envelope" do
-    before { nov.turn_on }
-    after { nov.turn_off }
-
     it "should call play on speaker" do
       speaker.should_receive(:play)
       nov.fire_envelope
@@ -44,9 +24,6 @@ describe "Novitiate" do
   end
 
   describe "play_oscillator" do
-    before { nov.turn_on }
-    after { nov.turn_off }
-
     it "should call play on speaker" do
       oscillator = double(sample: 0)
       subject.stub(oscillator: oscillator)
@@ -59,20 +36,24 @@ describe "Novitiate" do
 
       it "samples a sine wave" do
         nov.play_oscillator(1e-5)
-        speaker.buffer.each do |f,c,s|
+        f = 0
+        speaker.buffer.each do |s|
           s.should be_within(1e-6).of(Math.sin(Math::PI * 2 * (freq*(f+1)/44100.0).modulo(1)))
+          f += 1
         end
       end
 
       it "samples a square wave" do
         nov.osc_wave_setting = :square
         nov.play_oscillator(1e-5)
-        speaker.buffer.each do |f,c,s|
+        f = 0
+        speaker.buffer.each do |s|
           if (freq*(f+1)/44100.0).modulo(1) < 0.5
             s.should be_within(1e-6).of(-1)
           else
             s.should be_within(1e-6).of(1)
           end
+          f += 1
         end
       end
     end
@@ -82,12 +63,9 @@ describe "Novitiate" do
     let(:freq) { nov.mod_frequency }
 
     before do
-      nov.turn_on
       nov.osc_wave_setting = :square
       nov.osc_frequency_setting = 1
     end
-
-    after { nov.turn_off }
 
     it "should call play on speaker" do
       modulator = double(sample: 0)
@@ -98,9 +76,6 @@ describe "Novitiate" do
   end
 
   describe "play_filter" do
-    before { nov.turn_on }
-    after { nov.turn_off }
-
     it "should call play on speaker" do
       filter = double(sample: 0)
       subject.stub(filter: filter)
@@ -110,9 +85,6 @@ describe "Novitiate" do
   end
 
   describe "gain" do
-    before { nov.turn_on }
-    after { nov.turn_off }
-
     it "should delegate gain setter to speaker" do
       speaker.should_receive(:gain=).with(0.5)
       nov.gain = 0.5
@@ -125,9 +97,6 @@ describe "Novitiate" do
   end
 
   describe "osc_wave_setting" do
-    before { nov.turn_on }
-    after { nov.turn_off }
-
     it "should have a sine wave setting by default" do
       nov.osc_wave_setting.should == :sine
     end
@@ -155,9 +124,6 @@ describe "Novitiate" do
   end
 
   describe "osc_frequency_setting" do
-    before { nov.turn_on }
-    after { nov.turn_off }
-
     it "can be set" do
       nov.osc_frequency_setting = 0.5
       nov.osc_frequency_setting.should be_within(1e-6).of(0.5)
@@ -185,9 +151,6 @@ describe "Novitiate" do
   end
 
   describe "mod_wave_setting" do
-    before { nov.turn_on }
-    after { nov.turn_off }
-
     it "should have a sine wave setting by default" do
       nov.mod_wave_setting.should == :sine
     end
@@ -215,9 +178,6 @@ describe "Novitiate" do
   end
 
   describe "mod_frequency_setting" do
-    before { nov.turn_on }
-    after { nov.turn_off }
-
     it "can be set" do
       nov.mod_frequency_setting = 0.5
       nov.mod_frequency_setting.should be_within(1e-6).of(0.5)
@@ -245,9 +205,6 @@ describe "Novitiate" do
   end
 
   describe "mod_amount" do
-    before { nov.turn_on }
-    after { nov.turn_off }
-
     its(:mod_amount) { should == 0 }
 
     it "can be set as high as 1" do
@@ -262,9 +219,6 @@ describe "Novitiate" do
   end
 
   describe "filter_level" do
-    before { nov.turn_on }
-    after { nov.turn_off }
-
     its(:filter_level) { should == 0 }    
 
     it "can be set as high as 1" do
@@ -279,9 +233,6 @@ describe "Novitiate" do
   end
 
   describe "filter_resonance" do
-    before { nov.turn_on }
-    after { nov.turn_off }
-
     its(:filter_resonance) { should == 0 }    
 
     it "can be set as high as 1" do

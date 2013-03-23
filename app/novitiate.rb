@@ -3,7 +3,6 @@ require_relative './oscillator'
 require_relative './modulator'
 require_relative './envelope'
 require_relative './filter'
-require_relative '../../ruby-portaudio/lib/portaudio'
 
 class Novitiate
   def initialize(renderer = Speaker.new)
@@ -11,14 +10,6 @@ class Novitiate
     @oscillator = Oscillator.new(20, 20_000)
     @modulator = Modulator.new(@oscillator, 0.1, 100, smooth = true)
     @filter = Filter.new(@modulator, 2)
-  end
-
-  def turn_on
-    renderer.turn_on
-  end
-
-  def turn_off
-    renderer.turn_off
   end
 
   def fire_envelope
