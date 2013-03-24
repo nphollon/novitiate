@@ -21,7 +21,7 @@ describe Novitiate do
     let(:loudspeaker) { subject.send :renderer }
 
     it "should play sound when envelope is fired" do
-      loudspeaker.stream.should_receive(:write)
+      loudspeaker.stream.should_receive(:write).at_least(1).times
       subject.fire_envelope
     end
 
@@ -128,7 +128,7 @@ describe Novitiate do
       speaker.buffer.each do |s|
         i += 1
         expected = Math.sin(i * 40*Math::PI/44100.0) *
-          (1 - 0.5*Math.sin(i * 0.2*Math::PI/44100.0))
+          (0.5 + 0.5*Math.sin(i * 0.2*Math::PI/44100.0))
         s.should be_within(1e-6).of(expected)
       end
     end
@@ -154,6 +154,29 @@ describe Novitiate do
         speaker.buffer.each do |s|
           s.abs.should be_within(1e-6).of(1)
         end
+      end
+    end
+  end
+
+  describe "Envelope" do
+    it "should affect the amplitude of the output" do
+      stage_duration = 256 * 0.25 / 44100
+      novitiate.osc_wave_setting = :square
+      novitiate.filter_level = 1.0
+      novitiate.attack = stage_duration
+      novitiate.decay = stage_duration
+      novitiate.hold = stage_duration
+      novitiate.release = stage_duration
+      novitiate.sustain = 0.5
+
+      novitiate.fire_envelope
+
+      buffer = speaker.buffer
+      (0...64).each do |i|
+        buffer[    i].abs.should be_within(1e-6).of(      (i+1)/64.0)
+        buffer[ 64+i].abs.should be_within(1e-6).of(1.0 - (i+1)/128.0)
+        buffer[128+i].abs.should be_within(1e-6).of(0.5)
+        buffer[192+i].abs.should be_within(1e-6).of(0.5 - (i+1)/128.0)
       end
     end
   end

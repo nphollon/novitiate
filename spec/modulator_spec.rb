@@ -31,7 +31,7 @@ describe Modulator do
     it "should modulate oscillator" do
       oscillator.stub(sample: 0.1)
       subject.amount = 1
-      subject.sample(0.01).should be_within(1e-6).of(0.1 * (1-Math.sin(0.2*Math::PI)))
+      subject.sample(0.01).should be_within(1e-6).of(0.1 * Math.sin(0.2*Math::PI))
     end
   end
 end 

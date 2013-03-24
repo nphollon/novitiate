@@ -32,7 +32,7 @@ class Modulator < Oscillator
 
         double super_sample = NUM2DBL( rb_call_super(1, &rb_time_step) );
 
-        return modulated_sample * (1 - amount*super_sample);
+        return modulated_sample * (1 - amount + amount*super_sample);
       }
     EOC
   end

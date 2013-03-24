@@ -10,10 +10,11 @@ class Novitiate
     @oscillator = Oscillator.new(20, 20_000)
     @modulator = Modulator.new(@oscillator, 0.1, 100, smooth = true)
     @filter = Filter.new(@modulator, 2)
+    @envelope = Envelope.new(@filter)
   end
 
   def fire_envelope
-    renderer.play(1e-10, Envelope.new) 
+    envelope.fire(renderer)
   end
 
   def play_oscillator(duration)
@@ -100,6 +101,46 @@ class Novitiate
     filter.resonance = new_amount
   end
 
+  def attack
+    envelope.attack
+  end
+
+  def attack=(new_attack)
+    envelope.attack = new_attack
+  end
+
+  def decay
+    envelope.decay
+  end
+
+  def decay=(new_decay)
+    envelope.decay = new_decay
+  end
+
+  def hold
+    envelope.hold
+  end
+
+  def hold=(new_hold)
+    envelope.hold = new_hold
+  end
+
+  def release
+    envelope.release
+  end
+
+  def release=(new_release)
+    envelope.release = new_release
+  end
+
+  def sustain
+    envelope.sustain
+  end
+
+  def sustain=(new_sustain)
+    envelope.sustain = new_sustain
+  end
+
   private
-    attr_reader :oscillator, :renderer, :modulator, :filter
+    attr_reader :oscillator, :renderer, :modulator, :filter, :envelope
 end

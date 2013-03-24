@@ -17,8 +17,9 @@ describe "Novitiate" do
   end
 
   describe "fire_envelope" do
-    it "should call play on speaker" do
-      speaker.should_receive(:play)
+    it "should call fire on envelope" do
+      envelope = nov.send :envelope
+      envelope.should_receive(:fire).with(speaker)
       nov.fire_envelope
     end
   end
@@ -243,6 +244,76 @@ describe "Novitiate" do
     it "can be set as low as 0" do
       nov.filter_resonance = -0.1
       nov.filter_resonance.should be_within(1e-6).of(0)
+    end
+  end
+
+  describe "attack" do
+    its(:attack) { should == 0 }
+
+    it "cannot be less than 0" do
+      nov.attack = -1
+      nov.attack.should == 0
+    end
+
+    it "can be a positive value" do
+      nov.attack = 5
+      nov.attack.should == 5
+    end
+  end
+
+  describe "decay" do
+    its(:decay) { should == 0 }
+
+    it "cannot be less than 0" do
+      nov.decay = -1
+      nov.decay.should == 0
+    end
+
+    it "can be a positive value" do
+      nov.decay = 5
+      nov.decay.should == 5
+    end
+  end
+
+  describe "hold" do
+    its(:hold) { should == 1 }
+
+    it "cannot be less than 0" do
+      nov.hold = -1
+      nov.hold.should == 0
+    end
+
+    it "can be a positive value" do
+      nov.hold = 5
+      nov.hold.should == 5
+    end
+  end
+
+  describe "release" do
+    its(:release) { should == 0 }
+
+    it "cannot be less than 0" do
+      nov.release = -1
+      nov.release.should == 0
+    end
+
+    it "can be a positive value" do
+      nov.release = 5
+      nov.release.should == 5
+    end
+  end
+
+  describe "sustain" do
+    its(:sustain) { should == 1 }    
+
+    it "can be set as high as 1" do
+      nov.sustain = 1.1
+      nov.sustain.should be_within(1e-6).of(1)
+    end
+
+    it "can be set as low as 0" do
+      nov.sustain = -0.1
+      nov.sustain.should be_within(1e-6).of(0)
     end
   end
 end
