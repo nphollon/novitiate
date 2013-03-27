@@ -4,7 +4,8 @@ class FourierSeries
   inline do |builder|
     builder.include '"math.h"'
     builder.add_static 'PI', Math::PI, 'double'
-    builder.add_static 'COEFF_DEFAULT_COUNT', 1, 'unsigned long'
+    builder.add_static 'DEFAULT_COEFF_COUNT', 1, 'unsigned long'
+    builder.add_static 'DEFAULT_BANDWIDTH_LIMIT', 10_000, 'double'
 
     builder.prefix <<-EOC
       typedef struct FourierSeries {
@@ -14,6 +15,7 @@ class FourierSeries
         double *sin_coefficients;
         double *cos_coefficients;
         double phase;
+        double bandwidth_limit;
       } FourierSeries;
 
       FourierSeries * get_fourier_series(VALUE self) {
@@ -54,13 +56,17 @@ class FourierSeries
           (*array)[i] = (entry == Qnil) ? 0 : NUM2DBL(entry);
         }
       }
+
+      int is_harmonic_played(unsigned long i, FourierSeries *fs) {
+        return (i+1)*fs->fundamental < fs->bandwidth_limit;
+      }
     EOC
 
     builder.c_singleton <<-EOC
       VALUE new(double fundamental) {
         FourierSeries *fs = malloc(sizeof(FourierSeries));
-        fs->sin_coeff_count = COEFF_DEFAULT_COUNT;
-        fs->cos_coeff_count = COEFF_DEFAULT_COUNT;
+        fs->sin_coeff_count = DEFAULT_COEFF_COUNT;
+        fs->cos_coeff_count = DEFAULT_COEFF_COUNT;
         fs->sin_coefficients = malloc(fs->sin_coeff_count * sizeof(double));
         fs->cos_coefficients = malloc(fs->cos_coeff_count * sizeof(double));
 
@@ -68,6 +74,7 @@ class FourierSeries
         fs->sin_coefficients[0] = 1;
         fs->cos_coefficients[0] = 0;
         fs->phase = 0;
+        fs->bandwidth_limit = DEFAULT_BANDWIDTH_LIMIT;
 
         return Data_Wrap_Struct(self, mark_fourier_series, free_fourier_series, fs);
       }
@@ -75,6 +82,7 @@ class FourierSeries
 
     builder.struct_name = "FourierSeries"
     builder.accessor :fundamental, "double"
+    builder.accessor :bandwidth_limit, "double"
 
     builder.c <<-EOC
       VALUE coefficients() {
@@ -104,9 +112,9 @@ class FourierSeries
         double sum = 0;
 
         unsigned long i;
-        for (i = 0; i < fs->sin_coeff_count; i++)
+        for (i = 0; i < fs->cos_coeff_count && is_harmonic_played(i, fs); i++)
           sum += fs->sin_coefficients[i] * sin(2*PI * (i+1) * fs->phase);
-        for (i = 0; i < fs->cos_coeff_count; i++)
+        for (i = 0; i < fs->cos_coeff_count && is_harmonic_played(i, fs); i++)
           sum += fs->cos_coefficients[i] * cos(2*PI * (i+1) * fs->phase);
         return sum;
       }

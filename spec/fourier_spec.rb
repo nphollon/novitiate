@@ -5,6 +5,7 @@ describe "FourierSeries" do
   describe "delta function" do
     subject { FourierSeries.new(440) }
 
+    its(:bandwidth_limit) { should be_within(1e-6).of(1e4) }
     its(:fundamental) { should be_within(1e-6).of(440) }
     its(:coefficients) { should == [[1],[0]]}
 
@@ -53,6 +54,12 @@ describe "FourierSeries" do
           Math.sin(8.8*Math::PI) + 2*Math.sin(17.6*Math::PI) +
           3*Math.cos(8.8*Math::PI) + 4*Math.cos(17.6*Math::PI)
         )
+      end
+
+      it "ignores frequencies that are above the bandwidth limit" do
+        subject.coefficients = [[1, 1], [0, 1]]
+        subject.bandwidth_limit = 500
+        subject.sample(0.01).should be_within(1e-6).of(Math.sin(8.8*Math::PI))
       end
     end
   end
