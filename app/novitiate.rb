@@ -3,6 +3,7 @@ require_relative './oscillator'
 require_relative './modulator'
 require_relative './envelope'
 require_relative './filter'
+require_relative './fourier'
 
 class Novitiate
   def initialize(renderer = Speaker.new)

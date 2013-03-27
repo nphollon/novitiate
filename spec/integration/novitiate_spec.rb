@@ -92,9 +92,9 @@ describe Novitiate do
       novitiate.mod_wave_setting = :square
       novitiate.mod_frequency_setting = 1
       novitiate.play_modulator(1e-5)
-      (1...speaker.buffer.length).each do |i|
-        i.should_not == 0
-        speaker.buffer[i].should be_within(0.1).of(speaker.buffer[i-1])
+      buffer = speaker.buffer
+      (1...buffer.length).each do |i|
+        buffer[i].should be_within(0.1).of(buffer[i-1])
       end
     end
 
@@ -103,9 +103,9 @@ describe Novitiate do
       novitiate.mod_wave_setting = :sawtooth
       novitiate.mod_frequency_setting = 1
       novitiate.play_modulator(1e-5)
-      (1...speaker.buffer.length).each do |i|
-        i.should_not == 0
-        speaker.buffer[i].should be_within(0.1).of(speaker.buffer[i-1])
+      buffer = speaker.buffer
+      (1...buffer.length).each do |i|
+        buffer[i].should be_within(0.1).of(buffer[i-1])
       end
     end
 
