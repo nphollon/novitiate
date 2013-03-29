@@ -7,7 +7,7 @@ describe Filter do
   subject { Filter.new(oscillator, 5) }
 
   describe "level" do
-    its(:level) { should be_within(1e-6).of(0) }
+    its(:level) { should be_within(1e-6).of(1) }
 
     it "should be adjustable" do
       subject.level = 0.5

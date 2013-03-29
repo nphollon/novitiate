@@ -220,7 +220,7 @@ describe "Novitiate" do
   end
 
   describe "filter_level" do
-    its(:filter_level) { should == 0 }    
+    its(:filter_level) { should == 1 }    
 
     it "can be set as high as 1" do
       nov.filter_level = 1.1

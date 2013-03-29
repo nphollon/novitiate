@@ -70,7 +70,7 @@ class Filter
         filter = malloc(sizeof(Filter));
         
         filter->filtered = sampleable;
-        filter->level = 0;
+        filter->level = 1;
         filter->resonance = 0;
 
 
