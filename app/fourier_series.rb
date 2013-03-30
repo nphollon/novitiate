@@ -180,5 +180,26 @@ class FourierSeries
           fs->even_coefficients[i] = 0;
       }
     EOC
+
+    builder.c <<-EOC
+      unsigned long max_coeff_index() {
+        FourierSeries *fs = get_fourier_series(self);
+        return (fs->odd_coeff_count > fs->even_coeff_count) ? fs->odd_coeff_count : fs->even_coeff_count;
+      }
+    EOC
+
+    builder.c <<-EOC
+      double even_coefficient(unsigned long i) {
+        FourierSeries *fs = get_fourier_series(self);
+        return (i < fs->even_coeff_count) ? fs->even_coefficients[i] : 0;
+      }
+    EOC
+
+    builder.c <<-EOC
+      double odd_coefficient(unsigned long i) {
+        FourierSeries *fs = get_fourier_series(self);
+        return (i < fs->odd_coeff_count) ? fs->odd_coefficients[i] : 0;
+      }
+    EOC
   end
 end

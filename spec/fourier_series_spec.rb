@@ -1,10 +1,10 @@
 require 'spec_helper'
-require_relative '../app/fourier'
+require_relative '../app/fourier_series'
 
 describe "FourierSeries" do
-  describe "delta function" do
-    subject { FourierSeries.new(440) }
+  subject { FourierSeries.new(440) }
 
+  describe "delta function" do
     its(:bandwidth_limit) { should be_within(1e-6).of(1e4) }
     its(:fundamental) { should be_within(1e-6).of(440) }
     its(:coefficients) { should == [[1],[0]]}
@@ -28,8 +28,6 @@ describe "FourierSeries" do
   end
 
   describe "finite series" do
-    subject { FourierSeries.new(440) }
-
     describe "coefficients=" do
       it "should set the coefficients" do
         subject.coefficients = [[1],[3]]
@@ -64,9 +62,46 @@ describe "FourierSeries" do
     end
   end
 
+  describe "max_coeff_index" do
+    it "returns even coefficient count if there are more even than odd" do
+      subject.coefficients = [[1], [2, 3, 4]]
+      subject.max_coeff_index.should == 3
+    end
+
+    it "returns odd coefficient count if there are more odd than even" do
+      subject.coefficients = [[5,6],[]]
+      subject.max_coeff_index.should == 2
+    end
+  end
+
+  describe "odd_coefficient" do
+    before { subject.coefficients = [[5, 4], []] }
+
+    it "returns coefficient at index" do
+      subject.odd_coefficient(0).should == 5
+      subject.odd_coefficient(1).should == 4
+    end
+
+    it "returns 0 if index is out of bounds" do
+      subject.odd_coefficient(2).should == 0
+    end
+  end
+
+  describe "even_coefficient" do
+    before { subject.coefficients = [[], [5, 4]] }
+
+    it "returns coefficient at index" do
+      subject.even_coefficient(0).should == 5
+      subject.even_coefficient(1).should == 4
+    end
+
+    it "returns 0 if index is out of bounds" do
+      subject.even_coefficient(2).should == 0
+    end
+  end
+
   describe "set_to" do
-    subject { FourierSeries.new(440) }
-    before { subject.coefficients = [[1, 1], [1, 1]]}
+    before { subject.coefficients = [[1, 1], [1, 1]] }
 
     specify ":arbitrary_symbol" do
       expect do
